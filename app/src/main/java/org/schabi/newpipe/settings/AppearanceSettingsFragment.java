@@ -23,29 +23,11 @@ public class AppearanceSettingsFragment extends BasePreferenceFragment {
         // the key of the active theme when settings were opened (or recreated after theme change)
         final String startThemeKey = defaultPreferences
                 .getString(themeKey, getString(R.string.default_theme_value));
-        final String autoDeviceThemeKey = getString(R.string.auto_device_theme_key);
-        findPreference(themeKey).setOnPreferenceChangeListener((preference, newValue) -> {
-            if (newValue.toString().equals(autoDeviceThemeKey)) {
-                Toast.makeText(getContext(), getString(R.string.select_night_theme_toast),
-                        Toast.LENGTH_LONG).show();
-            }
 
+        findPreference(themeKey).setOnPreferenceChangeListener((preference, newValue) -> {
             applyThemeChange(startThemeKey, themeKey, newValue);
             return false;
         });
-
-        final String nightThemeKey = getString(R.string.night_theme_key);
-        if (startThemeKey.equals(autoDeviceThemeKey)) {
-            final String startNightThemeKey = defaultPreferences
-                    .getString(nightThemeKey, getString(R.string.default_night_theme_value));
-
-            findPreference(nightThemeKey).setOnPreferenceChangeListener((preference, newValue) -> {
-                applyThemeChange(startNightThemeKey, nightThemeKey, newValue);
-                return false;
-            });
-        } else {
-            removePreference(nightThemeKey);
-        }
     }
 
     @Override
@@ -59,13 +41,6 @@ public class AppearanceSettingsFragment extends BasePreferenceFragment {
         }
 
         return super.onPreferenceTreeClick(preference);
-    }
-
-    private void removePreference(final String preferenceKey) {
-        final Preference preference = findPreference(preferenceKey);
-        if (preference != null) {
-            getPreferenceScreen().removePreference(preference);
-        }
     }
 
     private void applyThemeChange(final String beginningThemeKey,

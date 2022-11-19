@@ -85,7 +85,8 @@ public final class ThemeHelper {
         final Resources res = context.getResources();
 
         return selectedThemeKey.equals(res.getString(R.string.light_theme_key))
-                || (selectedThemeKey.equals(res.getString(R.string.auto_device_theme_key))
+                || ((selectedThemeKey.equals(res.getString(R.string.auto_dark_theme_key))
+                || selectedThemeKey.equals(res.getString(R.string.auto_black_theme_key)))
                 && !isDeviceDarkThemeEnabled(context));
     }
 
@@ -125,7 +126,9 @@ public final class ThemeHelper {
         final Resources res = context.getResources();
         final String lightThemeKey = res.getString(R.string.light_theme_key);
         final String blackThemeKey = res.getString(R.string.black_theme_key);
-        final String automaticDeviceThemeKey = res.getString(R.string.auto_device_theme_key);
+
+        final String autoThemeDark = res.getString(R.string.auto_dark_theme_key);
+        final String autoThemeBlack = res.getString(R.string.auto_black_theme_key);
 
         final String selectedThemeKey = getSelectedThemeKey(context);
 
@@ -135,20 +138,20 @@ public final class ThemeHelper {
             baseTheme = R.style.LightTheme;
         } else if (selectedThemeKey.equals(blackThemeKey)) {
             baseTheme = R.style.BlackTheme;
-        } else if (selectedThemeKey.equals(automaticDeviceThemeKey)) {
+        } else if (selectedThemeKey.equals(autoThemeDark)
+                || selectedThemeKey.equals(autoThemeBlack)) {
 
             if (isDeviceDarkThemeEnabled(context)) {
                 // use the dark theme variant preferred by the user
-                final String selectedNightThemeKey = getSelectedNightThemeKey(context);
-                if (selectedNightThemeKey.equals(blackThemeKey)) {
+                if (selectedThemeKey.equals(autoThemeBlack)) {
                     baseTheme = R.style.BlackTheme;
-                } else {
-                    baseTheme = R.style.DarkTheme;
                 }
+
             } else {
                 // there is only one day theme
                 baseTheme = R.style.LightTheme;
             }
+
         }
 
         if (serviceId <= -1) {
@@ -184,20 +187,22 @@ public final class ThemeHelper {
         final Resources res = context.getResources();
         final String lightTheme = res.getString(R.string.light_theme_key);
         final String blackTheme = res.getString(R.string.black_theme_key);
-        final String automaticDeviceTheme = res.getString(R.string.auto_device_theme_key);
+        final String autoThemeDark = res.getString(R.string.auto_dark_theme_key);
+        final String autoThemeBlack = res.getString(R.string.auto_black_theme_key);
 
-
+        //TODO: Delete night_theme_summary, night_theme_title, auto_device_theme_title
         final String selectedTheme = getSelectedThemeKey(context);
 
         if (selectedTheme.equals(lightTheme)) {
             return R.style.LightSettingsTheme;
         } else if (selectedTheme.equals(blackTheme)) {
             return R.style.BlackSettingsTheme;
-        } else if (selectedTheme.equals(automaticDeviceTheme)) {
+        } else if (selectedTheme.equals(autoThemeDark)
+                || selectedTheme.equals(autoThemeBlack)) {
             if (isDeviceDarkThemeEnabled(context)) {
                 // use the dark theme variant preferred by the user
-                final String selectedNightTheme = getSelectedNightThemeKey(context);
-                if (selectedNightTheme.equals(blackTheme)) {
+
+                if (selectedTheme.equals(autoThemeBlack)) {
                     return R.style.BlackSettingsTheme;
                 } else {
                     return R.style.DarkSettingsTheme;
@@ -265,14 +270,6 @@ public final class ThemeHelper {
         final String defaultTheme = context.getResources().getString(R.string.default_theme_value);
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(themeKey, defaultTheme);
-    }
-
-    private static String getSelectedNightThemeKey(final Context context) {
-        final String nightThemeKey = context.getString(R.string.night_theme_key);
-        final String defaultNightTheme = context.getResources()
-                .getString(R.string.default_night_theme_value);
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getString(nightThemeKey, defaultNightTheme);
     }
 
     /**
