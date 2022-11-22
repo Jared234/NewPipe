@@ -403,8 +403,7 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
         final var streamsMaybe = playlistManager.getPlaylistStreams(playlistId)
                 .firstElement()
                 .zipWith(historyIdsMaybe, (playlist, historyStreamIds) -> {
-                    // Remove Watched, Functionality data
-                    final List<PlaylistStreamEntry> notWatchedItems = new ArrayList<>();
+                    final List<PlaylistStreamEntry> watchedItems = new ArrayList<>();
                     boolean thumbnailVideoRemoved = false;
 
                     if (removePartiallyWatched) {
@@ -412,12 +411,14 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
                             final int indexInHistory = Collections.binarySearch(historyStreamIds,
                                     playlistItem.getStreamId());
 
-                            if (indexInHistory < 0) {
-                                notWatchedItems.add(playlistItem);
-                            } else if (!thumbnailVideoRemoved
-                                    && playlistManager.getPlaylistThumbnail(playlistId)
-                                    .equals(playlistItem.getStreamEntity().getThumbnailUrl())) {
-                                thumbnailVideoRemoved = true;
+                            if (indexInHistory >= 0) {
+                                watchedItems.add(playlistItem);
+
+                                if (!thumbnailVideoRemoved
+                                        && playlistManager.getPlaylistThumbnail(playlistId)
+                                        .equals(playlistItem.getStreamEntity().getThumbnailUrl())) {
+                                    thumbnailVideoRemoved = true;
+                                }
                             }
                         }
                     } else {
@@ -428,32 +429,33 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
                             final var playlistItem = playlist.get(i);
                             final var streamStateEntity = streamStates.get(i);
 
-                            final int indexInHistory = Collections.binarySearch(historyStreamIds,
-                                    playlistItem.getStreamId());
                             final long duration = playlistItem.toStreamInfoItem().getDuration();
 
-                            if (indexInHistory < 0 || (streamStateEntity != null
-                                    && !streamStateEntity.isFinished(duration))) {
-                                notWatchedItems.add(playlistItem);
-                            } else if (!thumbnailVideoRemoved
-                                    && playlistManager.getPlaylistThumbnail(playlistId)
-                                    .equals(playlistItem.getStreamEntity().getThumbnailUrl())) {
-                                thumbnailVideoRemoved = true;
+                            if (streamStateEntity != null
+                                    && streamStateEntity.isFinished(duration)) {
+                                watchedItems.add(playlistItem);
+
+                                if (!thumbnailVideoRemoved
+                                        && playlistManager.getPlaylistThumbnail(playlistId)
+                                        .equals(playlistItem.getStreamEntity().getThumbnailUrl())) {
+                                    thumbnailVideoRemoved = true;
+                                }
                             }
                         }
                     }
 
-                    return new Pair<>(notWatchedItems, thumbnailVideoRemoved);
+                    return new Pair<>(watchedItems, thumbnailVideoRemoved);
                 });
 
         disposables.add(streamsMaybe.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(flow -> {
-                    final List<PlaylistStreamEntry> notWatchedItems = flow.first;
+                    final List<PlaylistStreamEntry> watchedItems = flow.first;
                     final boolean thumbnailVideoRemoved = flow.second;
 
-                    itemListAdapter.clearStreamItemList();
-                    itemListAdapter.addItems(notWatchedItems);
+                    for (final var entry : watchedItems) {
+                        itemListAdapter.removeItem(entry);
+                    }
                     saveChanges();
 
                     if (thumbnailVideoRemoved) {
