@@ -12,9 +12,10 @@ import static org.schabi.newpipe.database.playlist.model.PlaylistEntity.PLAYLIST
         indices = {@Index(value = {PLAYLIST_NAME})})
 public class PlaylistEntity {
     public static final String PLAYLIST_TABLE = "playlists";
-    public static final String PLAYLIST_ID = "uid";
+    public static final String PLAYLIST_ID = "playlist_uid";
     public static final String PLAYLIST_NAME = "name";
     public static final String PLAYLIST_THUMBNAIL_URL = "thumbnail_url";
+    public static final String PLAYLIST_THUMBNAIL_STREAM_ID = "thumbnail_stream_id";
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = PLAYLIST_ID)
@@ -23,12 +24,12 @@ public class PlaylistEntity {
     @ColumnInfo(name = PLAYLIST_NAME)
     private String name;
 
-    @ColumnInfo(name = PLAYLIST_THUMBNAIL_URL)
-    private String thumbnailUrl;
+    @ColumnInfo(name = PLAYLIST_THUMBNAIL_STREAM_ID)
+    private long thumbnailStreamId;
 
-    public PlaylistEntity(final String name, final String thumbnailUrl) {
+    public PlaylistEntity(final String name, final long thumbnailStreamId) {
         this.name = name;
-        this.thumbnailUrl = thumbnailUrl;
+        this.thumbnailStreamId = thumbnailStreamId;
     }
 
     public long getUid() {
@@ -47,11 +48,11 @@ public class PlaylistEntity {
         this.name = name;
     }
 
-    public String getThumbnailUrl() {
-        return thumbnailUrl;
+    public long getThumbnailStreamId() {
+        return thumbnailStreamId;
     }
 
-    public void setThumbnailUrl(final String thumbnailUrl) {
-        this.thumbnailUrl = thumbnailUrl;
+    public void setThumbnailStreamId(final long thumbnailStreamId) {
+        this.thumbnailStreamId = thumbnailStreamId;
     }
 }
