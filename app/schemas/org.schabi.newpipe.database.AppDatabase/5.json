@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 5,
-    "identityHash": "096731b513bb71dd44517639f4a2c1e3",
+    "identityHash": "406945910bc4a9baad536a5124ad388c",
     "entities": [
       {
         "tableName": "subscriptions",
@@ -71,6 +71,7 @@
               "service_id",
               "url"
             ],
+            "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_subscriptions_service_id_url` ON `${TABLE_NAME}` (`service_id`, `url`)"
           }
         ],
@@ -78,14 +79,8 @@
       },
       {
         "tableName": "search_history",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `creation_date` INTEGER, `service_id` INTEGER NOT NULL, `search` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`creation_date` INTEGER, `service_id` INTEGER NOT NULL, `search` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
         "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
           {
             "fieldPath": "creationDate",
             "columnName": "creation_date",
@@ -103,6 +98,12 @@
             "columnName": "search",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -118,6 +119,7 @@
             "columnNames": [
               "search"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_search_history_search` ON `${TABLE_NAME}` (`search`)"
           }
         ],
@@ -220,6 +222,7 @@
               "service_id",
               "url"
             ],
+            "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_streams_service_id_url` ON `${TABLE_NAME}` (`service_id`, `url`)"
           }
         ],
@@ -262,6 +265,7 @@
             "columnNames": [
               "stream_id"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_stream_history_stream_id` ON `${TABLE_NAME}` (`stream_id`)"
           }
         ],
@@ -319,11 +323,11 @@
       },
       {
         "tableName": "playlists",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `thumbnail_url` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playlist_uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `thumbnail_stream_id` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "uid",
-            "columnName": "uid",
+            "columnName": "playlist_uid",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -334,15 +338,15 @@
             "notNull": false
           },
           {
-            "fieldPath": "thumbnailUrl",
-            "columnName": "thumbnail_url",
-            "affinity": "TEXT",
-            "notNull": false
+            "fieldPath": "thumbnailStreamId",
+            "columnName": "thumbnail_stream_id",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
           "columnNames": [
-            "uid"
+            "playlist_uid"
           ],
           "autoGenerate": true
         },
@@ -353,6 +357,7 @@
             "columnNames": [
               "name"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_playlists_name` ON `${TABLE_NAME}` (`name`)"
           }
         ],
@@ -360,7 +365,7 @@
       },
       {
         "tableName": "playlist_stream_join",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playlist_id` INTEGER NOT NULL, `stream_id` INTEGER NOT NULL, `join_index` INTEGER NOT NULL, PRIMARY KEY(`playlist_id`, `join_index`), FOREIGN KEY(`playlist_id`) REFERENCES `playlists`(`uid`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`stream_id`) REFERENCES `streams`(`uid`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playlist_id` INTEGER NOT NULL, `stream_id` INTEGER NOT NULL, `join_index` INTEGER NOT NULL, PRIMARY KEY(`playlist_id`, `join_index`), FOREIGN KEY(`playlist_id`) REFERENCES `playlists`(`playlist_uid`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`stream_id`) REFERENCES `streams`(`uid`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
         "fields": [
           {
             "fieldPath": "playlistUid",
@@ -396,6 +401,7 @@
               "playlist_id",
               "join_index"
             ],
+            "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_playlist_stream_join_playlist_id_join_index` ON `${TABLE_NAME}` (`playlist_id`, `join_index`)"
           },
           {
@@ -404,6 +410,7 @@
             "columnNames": [
               "stream_id"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_playlist_stream_join_stream_id` ON `${TABLE_NAME}` (`stream_id`)"
           }
         ],
@@ -416,7 +423,7 @@
               "playlist_id"
             ],
             "referencedColumns": [
-              "uid"
+              "playlist_uid"
             ]
           },
           {
@@ -492,6 +499,7 @@
             "columnNames": [
               "name"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_remote_playlists_name` ON `${TABLE_NAME}` (`name`)"
           },
           {
@@ -501,6 +509,7 @@
               "service_id",
               "url"
             ],
+            "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_remote_playlists_service_id_url` ON `${TABLE_NAME}` (`service_id`, `url`)"
           }
         ],
@@ -537,6 +546,7 @@
             "columnNames": [
               "subscription_id"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_feed_subscription_id` ON `${TABLE_NAME}` (`subscription_id`)"
           }
         ],
@@ -607,6 +617,7 @@
             "columnNames": [
               "sort_order"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_feed_group_sort_order` ON `${TABLE_NAME}` (`sort_order`)"
           }
         ],
@@ -643,6 +654,7 @@
             "columnNames": [
               "subscription_id"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_feed_group_subscription_join_subscription_id` ON `${TABLE_NAME}` (`subscription_id`)"
           }
         ],
@@ -713,7 +725,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '096731b513bb71dd44517639f4a2c1e3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '406945910bc4a9baad536a5124ad388c')"
     ]
   }
 }

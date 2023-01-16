@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 6,
-    "identityHash": "406945910bc4a9baad536a5124ad388c",
+    "identityHash": "911bcb0434476da3660a733c5087aa35",
     "entities": [
       {
         "tableName": "subscriptions",
@@ -323,11 +323,11 @@
       },
       {
         "tableName": "playlists",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playlist_uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `thumbnail_stream_id` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `thumbnail_stream_id` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "uid",
-            "columnName": "playlist_uid",
+            "columnName": "uid",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -346,7 +346,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "playlist_uid"
+            "uid"
           ],
           "autoGenerate": true
         },
@@ -365,7 +365,7 @@
       },
       {
         "tableName": "playlist_stream_join",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playlist_id` INTEGER NOT NULL, `stream_id` INTEGER NOT NULL, `join_index` INTEGER NOT NULL, PRIMARY KEY(`playlist_id`, `join_index`), FOREIGN KEY(`playlist_id`) REFERENCES `playlists`(`playlist_uid`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`stream_id`) REFERENCES `streams`(`uid`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playlist_id` INTEGER NOT NULL, `stream_id` INTEGER NOT NULL, `join_index` INTEGER NOT NULL, PRIMARY KEY(`playlist_id`, `join_index`), FOREIGN KEY(`playlist_id`) REFERENCES `playlists`(`uid`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`stream_id`) REFERENCES `streams`(`uid`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
         "fields": [
           {
             "fieldPath": "playlistUid",
@@ -423,7 +423,7 @@
               "playlist_id"
             ],
             "referencedColumns": [
-              "playlist_uid"
+              "uid"
             ]
           },
           {
@@ -725,7 +725,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '406945910bc4a9baad536a5124ad388c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '911bcb0434476da3660a733c5087aa35')"
     ]
   }
 }

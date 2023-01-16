@@ -12,7 +12,7 @@ import static org.schabi.newpipe.database.playlist.model.PlaylistEntity.PLAYLIST
         indices = {@Index(value = {PLAYLIST_NAME})})
 public class PlaylistEntity {
     public static final String PLAYLIST_TABLE = "playlists";
-    public static final String PLAYLIST_ID = "playlist_uid";
+    public static final String PLAYLIST_ID = "uid";
     public static final String PLAYLIST_NAME = "name";
     public static final String PLAYLIST_THUMBNAIL_URL = "thumbnail_url";
     public static final String PLAYLIST_THUMBNAIL_STREAM_ID = "thumbnail_stream_id";

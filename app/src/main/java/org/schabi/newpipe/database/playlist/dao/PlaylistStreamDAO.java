@@ -18,14 +18,12 @@ import static org.schabi.newpipe.database.playlist.PlaylistMetadataEntry.PLAYLIS
 import static org.schabi.newpipe.database.playlist.model.PlaylistEntity.PLAYLIST_ID;
 import static org.schabi.newpipe.database.playlist.model.PlaylistEntity.PLAYLIST_NAME;
 import static org.schabi.newpipe.database.playlist.model.PlaylistEntity.PLAYLIST_TABLE;
-import static org.schabi.newpipe.database.playlist.model.PlaylistEntity.PLAYLIST_THUMBNAIL_STREAM_ID;
 import static org.schabi.newpipe.database.playlist.model.PlaylistStreamEntity.JOIN_INDEX;
 import static org.schabi.newpipe.database.playlist.model.PlaylistStreamEntity.JOIN_PLAYLIST_ID;
 import static org.schabi.newpipe.database.playlist.model.PlaylistStreamEntity.JOIN_STREAM_ID;
 import static org.schabi.newpipe.database.playlist.model.PlaylistStreamEntity.PLAYLIST_STREAM_JOIN_TABLE;
 import static org.schabi.newpipe.database.stream.model.StreamEntity.STREAM_ID;
 import static org.schabi.newpipe.database.stream.model.StreamEntity.STREAM_TABLE;
-import static org.schabi.newpipe.database.stream.model.StreamEntity.STREAM_THUMBNAIL_URL;
 import static org.schabi.newpipe.database.stream.model.StreamStateEntity.JOIN_STREAM_ID_ALIAS;
 import static org.schabi.newpipe.database.stream.model.StreamStateEntity.STREAM_PROGRESS_MILLIS;
 import static org.schabi.newpipe.database.stream.model.StreamStateEntity.STREAM_STATE_TABLE;
@@ -75,15 +73,16 @@ public interface PlaylistStreamDAO extends BasicDAO<PlaylistStreamEntity> {
     Flowable<List<PlaylistStreamEntry>> getOrderedStreamsOf(long playlistId);
 
     @Transaction
-    @Query("SELECT " + PLAYLIST_ID + ", " + PLAYLIST_NAME + "," + STREAM_THUMBNAIL_URL + ","
+    @Query("SELECT " + PLAYLIST_ID + ", " + PLAYLIST_NAME + "," + PLAYLIST_NAME + ","
             + "COALESCE(COUNT(" + JOIN_PLAYLIST_ID + "), 0) AS " + PLAYLIST_STREAM_COUNT
 
             + " FROM " + PLAYLIST_TABLE
             + " LEFT JOIN " + PLAYLIST_STREAM_JOIN_TABLE
             + " ON " + PLAYLIST_ID + " = " + JOIN_PLAYLIST_ID
-            + " LEFT JOIN " + STREAM_TABLE
-            + " ON " + STREAM_ID + " = " + PLAYLIST_THUMBNAIL_STREAM_ID
             + " GROUP BY " + JOIN_PLAYLIST_ID
             + " ORDER BY " + PLAYLIST_NAME + " COLLATE NOCASE ASC")
     Flowable<List<PlaylistMetadataEntry>> getPlaylistMetadata();
+
+    @Query("SELECT sqlite_version();")
+    Double getVersion();
 }

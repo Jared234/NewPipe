@@ -196,17 +196,24 @@ public final class Migrations {
             database.execSQL("ALTER TABLE `playlists` ADD COLUMN `thumbnail_stream_id` "
                     + "INTEGER NOT NULL DEFAULT -1");
 
+            database.execSQL("UPDATE p SET thumbnail_stream_id=0 FROM playlists p");
+
+            database.execSQL("SELECT uid FROM playlists p"
+                    + " LEFT JOIN playlist_stream_join ps ON p.uid = ps.playlist_id"
+                    + " LEFT JOIN streams s ON s.uid = ps.stream_id"
+                    + " WHERE s.thumbnail_url = p.thumbnail_url");
+
             // TODO: update the column thumbnail_stream_id by joining the playlists with the streams
             //  and inserting the correct streamID
 
 
             // Remove the thumbnail_url field of the playlist table
             database.execSQL("CREATE TABLE IF NOT EXISTS `playlists_new`"
-                    + "(playlist_uid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
+                    + "(uid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
                     + "name TEXT,"
                     + "thumbnail_stream_id INTEGER NOT NULL)");
 
-            database.execSQL("INSERT INTO playlistsNew (playlist_uid, name, thumbnail_stream_id) "
+            database.execSQL("INSERT INTO playlistsNew (uid, name, thumbnail_stream_id) "
                     + "SELECT uid, name, thumbnail_stream_id"
                     + "FROM playlists");
 
