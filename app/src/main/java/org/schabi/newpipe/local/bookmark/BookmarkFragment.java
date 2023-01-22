@@ -282,10 +282,6 @@ public final class BookmarkFragment extends BaseLocalListFragment<List<PlaylistL
             } else if (isThumbnailPermanent && items.get(index).equals(unsetThumbnail)) {
                 final String thumbnailUrl = localPlaylistManager
                         .getAutomaticPlaylistThumbnail(selectedItem.uid);
-                localPlaylistManager
-                        .changePlaylistThumbnail(selectedItem.uid, thumbnailUrl, false)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe();
             }
         };
 
