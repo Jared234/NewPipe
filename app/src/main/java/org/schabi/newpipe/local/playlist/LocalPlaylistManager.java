@@ -2,7 +2,6 @@ package org.schabi.newpipe.local.playlist;
 
 import androidx.annotation.Nullable;
 
-import org.schabi.newpipe.R;
 import org.schabi.newpipe.database.AppDatabase;
 import org.schabi.newpipe.database.playlist.PlaylistMetadataEntry;
 import org.schabi.newpipe.database.playlist.PlaylistStreamEntry;
@@ -40,22 +39,16 @@ public class LocalPlaylistManager {
         if (streams.isEmpty()) {
             return Maybe.empty();
         }
-
+        final StreamEntity defaultStream = streams.get(0);
+        final PlaylistEntity newPlaylist =
+                new PlaylistEntity(name, false, defaultStream.getUid());
 
         return Maybe.fromCallable(() -> database.runInTransaction(() -> {
-            final StreamEntity defaultStream = streams.get(0);
-            final PlaylistEntity newPlaylist =
-                    new PlaylistEntity(name, false, defaultStream.getUid());
+            final List<Long> streamIds = streamTable.upsertAll(streams);
+            newPlaylist.setThumbnailStreamId(streamIds.get(0));
 
-            final var playlistID = playlistTable.insert(newPlaylist);
-            final var streamIDs = upsertStreams(playlistID,
-                    streams, 0);
-
-            newPlaylist.setThumbnailStreamId(streams.get(0).getUid());
-            playlistTable.deletePlaylist(playlistID);
-            playlistTable.insert(newPlaylist);
-            return streamIDs;
-
+            return insertJoinEntities(playlistTable.insert(newPlaylist),
+                    streamIds, 0);
         }
         )).subscribeOn(Schedulers.io());
     }
@@ -64,19 +57,17 @@ public class LocalPlaylistManager {
                                               final List<StreamEntity> streams) {
         return playlistStreamTable.getMaximumIndexOf(playlistId)
                 .firstElement()
-                .map(maxJoinIndex -> database.runInTransaction(() ->
-                        upsertStreams(playlistId, streams, maxJoinIndex + 1))
-                ).subscribeOn(Schedulers.io());
+                .map(maxJoinIndex -> database.runInTransaction(() -> {
+                    final List<Long> streamIds = streamTable.upsertAll(streams);
+                    return insertJoinEntities(playlistId, streamIds, maxJoinIndex + 1);
+                }
+                )).subscribeOn(Schedulers.io());
     }
 
-    private List<Long> upsertStreams(final long playlistId,
-                                     final List<StreamEntity> streams,
-                                     final int indexOffset) {
+    private List<Long> insertJoinEntities(final long playlistId, final List<Long> streamIds,
+                                          final int indexOffset) {
 
-        final List<PlaylistStreamEntity> joinEntities = new ArrayList<>(streams.size());
-        // The stream gets the uid after this method.
-        final List<Long> streamIds = streamTable.upsertAll(streams);
-
+        final List<PlaylistStreamEntity> joinEntities = new ArrayList<>(streamIds.size());
 
         for (int index = 0; index < streamIds.size(); index++) {
             joinEntities.add(new PlaylistStreamEntity(playlistId, streamIds.get(index),
@@ -118,9 +109,9 @@ public class LocalPlaylistManager {
     }
 
     public Maybe<Integer> changePlaylistThumbnail(final long playlistId,
-                                                  final long thumbnailUrl,
+                                                  final long thumbnailStreamId,
                                                   final boolean isPermanent) {
-        return modifyPlaylist(playlistId, null, thumbnailUrl, isPermanent);
+        return modifyPlaylist(playlistId, null, thumbnailStreamId, isPermanent);
     }
 
     public long getPlaylistThumbnailStreamId(final long playlistId) {
@@ -132,14 +123,18 @@ public class LocalPlaylistManager {
                 .getIsThumbnailPermanent();
     }
 
-    public String getAutomaticPlaylistThumbnail(final long playlistId) {
-        final String def = "drawable://" + R.drawable.placeholder_thumbnail_playlist;
-        return playlistStreamTable.getAutomaticThumbnailUrl(playlistId, def).blockingFirst();
+    public long getAutomaticPlaylistThumbnailStreamId(final long playlistId) {
+        final long streamId = playlistStreamTable.getAutomaticThumbnailUrl(playlistId)
+                .blockingFirst();
+        if (streamId < 0) {
+            return LocalPlaylistFragment.DEFAULT_THUMBNAIL_ID;
+        }
+        return streamId;
     }
 
     private Maybe<Integer> modifyPlaylist(final long playlistId,
                                           @Nullable final String name,
-                                          @Nullable final long thumbnailStreamId,
+                                          final long thumbnailStreamId,
                                           final boolean isPermanent) {
         return playlistTable.getPlaylist(playlistId)
                 .firstElement()

@@ -589,7 +589,7 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
         disposables.add(disposable);
     }
 
-    private void changeThumbnailUrl(final long thumbnailStreamId, final boolean isPermanent) {
+    private void changeThumbnailStreamId(final long thumbnailStreamId, final boolean isPermanent) {
         if (playlistManager == null || (!isPermanent && playlistManager
                 .getIsPlaylistThumbnailPermanent(playlistId))) {
             return;
@@ -627,7 +627,7 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
             thumbnailStreamId = DEFAULT_THUMBNAIL_ID;
         }
 
-        changeThumbnailUrl(thumbnailStreamId, false);
+        changeThumbnailStreamId(thumbnailStreamId, false);
     }
 
     private void deleteItem(final PlaylistStreamEntry item) {
@@ -794,7 +794,7 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
                     .setAction(
                             StreamDialogDefaultEntry.SET_AS_PLAYLIST_THUMBNAIL,
                             (f, i) ->
-                                    changeThumbnailUrl(item.getStreamEntity().getUid(),
+                                    changeThumbnailStreamId(item.getStreamEntity().getUid(),
                                             true))
                     .setAction(
                             StreamDialogDefaultEntry.DELETE,

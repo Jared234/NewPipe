@@ -56,14 +56,14 @@ public interface PlaylistStreamDAO extends BasicDAO<PlaylistStreamEntity> {
             + " WHERE " + JOIN_PLAYLIST_ID + " = :playlistId")
     Flowable<Integer> getMaximumIndexOf(long playlistId);
 
-    @Query("SELECT CASE WHEN COUNT(*) != 0 then " + STREAM_THUMBNAIL_URL + " ELSE :defaultUrl END"
+    @Query("SELECT CASE WHEN COUNT(*) != 0 then " + STREAM_ID + " ELSE -1 END"
             + " FROM " + STREAM_TABLE
             + " LEFT JOIN " + PLAYLIST_STREAM_JOIN_TABLE
             + " ON " + STREAM_ID + " = " + JOIN_STREAM_ID
             + " WHERE " + JOIN_PLAYLIST_ID + " = :playlistId "
             + " LIMIT 1"
     )
-    Flowable<String> getAutomaticThumbnailUrl(long playlistId, String defaultUrl);
+    Flowable<Long> getAutomaticThumbnailUrl(long playlistId);
 
     @RewriteQueriesToDropUnusedColumns
     @Transaction

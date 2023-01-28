@@ -280,8 +280,12 @@ public final class BookmarkFragment extends BaseLocalListFragment<List<PlaylistL
                 showDeleteDialog(selectedItem.name,
                         localPlaylistManager.deletePlaylist(selectedItem.uid));
             } else if (isThumbnailPermanent && items.get(index).equals(unsetThumbnail)) {
-                final String thumbnailUrl = localPlaylistManager
-                        .getAutomaticPlaylistThumbnail(selectedItem.uid);
+                final long thumbnailStreamId = localPlaylistManager
+                        .getAutomaticPlaylistThumbnailStreamId(selectedItem.uid);
+                localPlaylistManager
+                        .changePlaylistThumbnail(selectedItem.uid, thumbnailStreamId, false)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe();
             }
         };
 
